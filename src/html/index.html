@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="author" content="ToMe25">
+<title>ESP Wake on Lan Server</title>
+<link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+	<form class="main" method="post">
+		<div class="message $message_type" hidden>$message</div>
+		<br />
+		<h1>ESP Wake on Lan Server</h1>
+		<h1>Wake up settings:</h1>
+		<label for="device">Device: </label> <select class="input"
+			name="device" id="device" required> $devices
+		</select><br /> <label for="target">Target: </label> <input class="input"
+			type="text" pattern="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+			name="target" id="target"
+			title="The broadcast IP address to send the wake on lan packet to."
+			alt="The broadcast IP address to send the wake on lan packet to."
+			value="$target" size="11" maxlength="15" required /><br />
+		<button class="wakeup" type="submit">Wake Up</button>
+	</form>
+</body>
+</html>
