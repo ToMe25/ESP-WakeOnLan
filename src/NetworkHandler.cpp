@@ -84,19 +84,11 @@ void NetworkHandler::setupWebServer() {
 
 	std::istringstream deviceStream(deviceMacs);
 	std::string device;
-	std::string devices;
 	while (std::getline(deviceStream, device, '\n')) {
 		if (device.length() > 0) {
 			NetworkHandler::deviceMacs.push_back(device);
-			devices += "<option value=\"";
-			devices += device;
-			devices += "\">";
-			devices += device;
-			devices += "</option>\n";
 		}
 	}
-	indexHtml = std::regex_replace(indexHtml, std::regex("\\$devices"),
-			devices.c_str());
 
 	webServer.on("/", HTTP_GET, onIndexGet);
 	webServer.on("/", HTTP_POST, onIndexPost);
@@ -151,8 +143,32 @@ void NetworkHandler::setupOTA() {
 
 void NetworkHandler::onIndexGet(AsyncWebServerRequest *request) {
 	std::string response = indexHtml;
+
+	std::string devices;
+	for (std::string device : deviceMacs) {
+		devices += "<option value=\"";
+		devices += device;
+		devices += "\">\n";
+	}
+	response = std::regex_replace(response, std::regex("\\$devices"),
+			devices.c_str());
+
+	std::string targets = "<option value=\"";
+	targets += targetBroadcast.toString().c_str();
+	targets += "\">\n";
+	IPAddress broadcast(255, 255, 255, 255);
+	if (targetBroadcast != broadcast) {
+		targets += "<option value=\"";
+		targets += broadcast.toString().c_str();
+		targets += "\">\n";
+	}
+	response = std::regex_replace(response, std::regex("\\$targets"),
+			targets.c_str());
+
+	response = std::regex_replace(response, std::regex("\\$device"), "");
 	response = std::regex_replace(response, std::regex("\\$target"),
 			targetBroadcast.toString().c_str());
+
 	request->send(200, "text/html", response.c_str());
 }
 
@@ -160,10 +176,35 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 	if (request->hasParam("device", true) && request->hasParam("target", true)) {
 		String device = request->getParam("device", true)->value();
 		String target = request->getParam("target", true)->value();
-
 		std::string response = indexHtml;
+
+		std::string devices;
+		for (std::string device : deviceMacs) {
+			devices += "<option value=\"";
+			devices += device;
+			devices += "\">\n";
+		}
+		response = std::regex_replace(response, std::regex("\\$devices"),
+				devices.c_str());
+
+		std::string targets = "<option value=\"";
+		targets += targetBroadcast.toString().c_str();
+		targets += "\">\n";
+		IPAddress broadcast(255, 255, 255, 255);
+		if (targetBroadcast != broadcast) {
+			targets += "<option value=\"";
+			targets += broadcast.toString().c_str();
+			targets += "\">\n";
+		}
+		response = std::regex_replace(response, std::regex("\\$targets"),
+				targets.c_str());
+
 		response = std::regex_replace(response, std::regex("\\$target"),
 				target.c_str());
+		response = std::regex_replace(response, std::regex("\\$device"),
+				device.c_str());
+
+		IPAddress originalBroadcastTarget = targetBroadcast;
 
 		if (!WakeOnLanGenerator::isValidMac(device.c_str())) {
 			std::string message = "error\">Received invalid device mac address \"";
@@ -173,6 +214,7 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 			response = std::regex_replace(response, std::regex("\\$message_type\" hidden>\\$message"), message.c_str());
 			request->send(400, "text/html", response.c_str());
 		} else if (!targetBroadcast.fromString(target)) {
+			targetBroadcast = originalBroadcastTarget;
 			std::string message = "error\">Received invalid target IP address \"";
 			message += target.c_str();
 			message += "\".";
