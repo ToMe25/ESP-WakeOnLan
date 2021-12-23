@@ -95,6 +95,10 @@ void NetworkHandler::setupWebServer() {
 	webServer.on("/index.html", HTTP_GET, onIndexGet);
 	webServer.on("/index.html", HTTP_POST, onIndexPost);
 
+	webServer.on("/index.js", HTTP_GET, [](AsyncWebServerRequest *request) {
+		request->send(200, "text/javascript", INDEX_JS);
+	});
+
 	webServer.on("/main.css", HTTP_GET, [](AsyncWebServerRequest *request) {
 		request->send(200, "text/css", MAIN_CSS);
 	});
@@ -152,6 +156,22 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 		String device = request->getParam("device", true)->value();
 		String target = request->getParam("target", true)->value();
 
+		if (device == "Other") {
+			if (request->hasParam("custom_device", true)) {
+				device = request->getParam("custom_device", true)->value();
+			} else {
+				device = "";
+			}
+		}
+
+		if (target == "Other") {
+			if (request->hasParam("custom_target", true)) {
+				target = request->getParam("custom_target", true)->value();
+			} else {
+				target = "";
+			}
+		}
+
 		IPAddress originalBroadcastTarget = targetBroadcast;
 
 		if (!WakeOnLanGenerator::isValidMac(device.c_str())) {
@@ -199,24 +219,23 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 std::string NetworkHandler::prepareIndexResponse(const String device, const String target) {
 	std::string response = indexHtml;
 
-	std::string devices;
+	std::string devices = "\n";
 	for (std::string device : deviceMacs) {
 		devices += "<option value=\"";
 		devices += device;
-		devices += "\">\n";
+		devices += "\">";
+		devices += device;
+		devices += "</option>\n";
 	}
 	response = std::regex_replace(response, std::regex("\\$devices"),
 			devices.c_str());
 
 	std::vector<std::string> targetIPs;
 	targetIPs.reserve(4);
-	targetIPs.push_back(std::string(target.c_str()));
-	std::string ip(targetBroadcast.toString().c_str());
-	if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
-		targetIPs.push_back(ip);
+	if (target.length() > 6) {
+		targetIPs.push_back(std::string(target.c_str()));
 	}
-	IPAddress globalBroadcast(255, 255, 255, 255);
-	ip = std::string(globalBroadcast.toString().c_str());
+	std::string ip(targetBroadcast.toString().c_str());
 	if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
 		targetIPs.push_back(ip);
 	}
@@ -232,12 +251,19 @@ std::string NetworkHandler::prepareIndexResponse(const String device, const Stri
 			targetIPs.push_back(ip);
 		}
 	}
+	IPAddress globalBroadcast(255, 255, 255, 255);
+	ip = std::string(globalBroadcast.toString().c_str());
+	if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
+		targetIPs.push_back(ip);
+	}
 
-	std::string targets;
+	std::string targets = "\n";
 	for (std::string target : targetIPs) {
 		targets += "<option value=\"";
 		targets += target;
-		targets += "\">\n";
+		targets += "\">";
+		targets += target;
+		targets += "</option>\n";
 	}
 	response = std::regex_replace(response, std::regex("\\$targets"),
 			targets.c_str());
