@@ -17,7 +17,7 @@
 			pattern="[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}"
 			title="The MAC address of the device to wake up."
 			alt="The MAC address of the device to wake up."
-			placeholder="The MAC address of the device to wake up."
+			placeholder="Device MAC Address"
 			list="devices" value="$device" minlength="17" maxlength="17"
 			size="11" required />
 		<datalist id="devices">$devices
@@ -27,7 +27,7 @@
 			name="target" id="target"
 			title="The broadcast IP address to send the wake on lan packet to."
 			alt="The broadcast IP address to send the wake on lan packet to."
-			placeholder="The broadcast IP address to send the wake on lan packet to."
+			placeholder="Target Broadcast IP"
 			list="targets" value="$target" size="11" maxlength="15" required />
 		<datalist id="targets">$targets
 		</datalist>

@@ -63,7 +63,7 @@ void NetworkHandler::onWiFiEvent(WiFiEvent_t event) {
 		Serial.print("STA IP: ");
 		Serial.println(localhost = WiFi.localIP());
 
-		if (DEFAULT_TARGET_BROADCAST == IPAddress((uint) 0)) {
+		if (DEFAULT_TARGET_BROADCAST == IPAddress((uint32_t) 0)) {
 			targetBroadcast = WiFi.broadcastIP();
 		}
 		break;
@@ -142,33 +142,8 @@ void NetworkHandler::setupOTA() {
 }
 
 void NetworkHandler::onIndexGet(AsyncWebServerRequest *request) {
-	std::string response = indexHtml;
-
-	std::string devices;
-	for (std::string device : deviceMacs) {
-		devices += "<option value=\"";
-		devices += device;
-		devices += "\">\n";
-	}
-	response = std::regex_replace(response, std::regex("\\$devices"),
-			devices.c_str());
-
-	std::string targets = "<option value=\"";
-	targets += targetBroadcast.toString().c_str();
-	targets += "\">\n";
-	IPAddress broadcast(255, 255, 255, 255);
-	if (targetBroadcast != broadcast) {
-		targets += "<option value=\"";
-		targets += broadcast.toString().c_str();
-		targets += "\">\n";
-	}
-	response = std::regex_replace(response, std::regex("\\$targets"),
-			targets.c_str());
-
-	response = std::regex_replace(response, std::regex("\\$device"), "");
-	response = std::regex_replace(response, std::regex("\\$target"),
-			targetBroadcast.toString().c_str());
-
+	std::string response = prepareIndexResponse("",
+			targetBroadcast.toString());
 	request->send(200, "text/html", response.c_str());
 }
 
@@ -176,33 +151,6 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 	if (request->hasParam("device", true) && request->hasParam("target", true)) {
 		String device = request->getParam("device", true)->value();
 		String target = request->getParam("target", true)->value();
-		std::string response = indexHtml;
-
-		std::string devices;
-		for (std::string device : deviceMacs) {
-			devices += "<option value=\"";
-			devices += device;
-			devices += "\">\n";
-		}
-		response = std::regex_replace(response, std::regex("\\$devices"),
-				devices.c_str());
-
-		std::string targets = "<option value=\"";
-		targets += targetBroadcast.toString().c_str();
-		targets += "\">\n";
-		IPAddress broadcast(255, 255, 255, 255);
-		if (targetBroadcast != broadcast) {
-			targets += "<option value=\"";
-			targets += broadcast.toString().c_str();
-			targets += "\">\n";
-		}
-		response = std::regex_replace(response, std::regex("\\$targets"),
-				targets.c_str());
-
-		response = std::regex_replace(response, std::regex("\\$target"),
-				target.c_str());
-		response = std::regex_replace(response, std::regex("\\$device"),
-				device.c_str());
 
 		IPAddress originalBroadcastTarget = targetBroadcast;
 
@@ -211,6 +159,7 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 			message += device.c_str();
 			message += "\".";
 
+			std::string response = prepareIndexResponse(device, target);
 			response = std::regex_replace(response, std::regex("\\$message_type\" hidden>\\$message"), message.c_str());
 			request->send(400, "text/html", response.c_str());
 		} else if (!targetBroadcast.fromString(target)) {
@@ -219,9 +168,14 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 			message += target.c_str();
 			message += "\".";
 
+			std::string response = prepareIndexResponse(device, target);
 			response = std::regex_replace(response, std::regex("\\$message_type\" hidden>\\$message"), message.c_str());
 			request->send(400, "text/html", response.c_str());
 		} else {
+			if (std::count(deviceMacs.begin(), deviceMacs.end(), std::string(device.c_str())) == 0) {
+				deviceMacs.push_back(std::string(device.c_str()));
+			}
+
 			Serial.print("Waking up device ");
 			Serial.print(device);
 			Serial.println('.');
@@ -233,10 +187,63 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 			message += device.c_str();
 			message += '.';
 
+			std::string response = prepareIndexResponse(device, target);
 			response = std::regex_replace(response, std::regex("\\$message_type\" hidden>\\$message"), message.c_str());
 			request->send(200, "text/html", response.c_str());
 		}
 	} else {
 		onIndexGet(request);
 	}
+}
+
+std::string NetworkHandler::prepareIndexResponse(const String device, const String target) {
+	std::string response = indexHtml;
+
+	std::string devices;
+	for (std::string device : deviceMacs) {
+		devices += "<option value=\"";
+		devices += device;
+		devices += "\">\n";
+	}
+	response = std::regex_replace(response, std::regex("\\$devices"),
+			devices.c_str());
+
+	std::vector<std::string> targetIPs;
+	targetIPs.reserve(4);
+	targetIPs.push_back(std::string(target.c_str()));
+	std::string ip(targetBroadcast.toString().c_str());
+	if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
+		targetIPs.push_back(ip);
+	}
+	IPAddress globalBroadcast(255, 255, 255, 255);
+	ip = std::string(globalBroadcast.toString().c_str());
+	if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
+		targetIPs.push_back(ip);
+	}
+	if (DEFAULT_TARGET_BROADCAST == IPAddress((uint32_t) 0)) {
+		IPAddress localBroadcast = WiFi.broadcastIP();
+		ip = std::string(localBroadcast.toString().c_str());
+		if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
+			targetIPs.push_back(ip);
+		}
+	} else {
+		ip = std::string(DEFAULT_TARGET_BROADCAST.toString().c_str());
+		if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
+			targetIPs.push_back(ip);
+		}
+	}
+
+	std::string targets;
+	for (std::string target : targetIPs) {
+		targets += "<option value=\"";
+		targets += target;
+		targets += "\">\n";
+	}
+	response = std::regex_replace(response, std::regex("\\$targets"),
+			targets.c_str());
+
+	response = std::regex_replace(response, std::regex("\\$device"), device.c_str());
+	response = std::regex_replace(response, std::regex("\\$target"), target.c_str());
+
+	return response;
 }

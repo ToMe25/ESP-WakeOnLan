@@ -69,12 +69,24 @@ private:
 
 	static void onWiFiEvent(WiFiEvent_t event);
 
+	/**
+	 * Set up the Web Server.
+	 */
 	static void setupWebServer();
 
 	static void setupOTA();
 
 	static void onIndexGet(AsyncWebServerRequest *request);
 	static void onIndexPost(AsyncWebServerRequest *request);
+
+	/**
+	 * Replaces some variables in indexHtml to prepare it for being sent to the client.
+	 *
+	 * @param device	The currently selected device MAC address.
+	 * @param target	The currently selected target broadcast ip address.
+	 * @return	The prepared index.html string.
+	 */
+	static std::string prepareIndexResponse(const String device, const String target);
 };
 
 #endif /* SRC_NETWORKHANDLER_H_ */
