@@ -1,7 +1,12 @@
 # ESP Wake on Lan
-ESP Wake on Lan is a simple web interface on an ESP32 to send Wake on Lan Magic Packets to one out a list of specified devices.  
-The device to wake up can be selected from a list in an external file that is compiled into the project.  
-It is also possible to specify the target (broadcast) address to send the packet to.  
+ESP Wake on Lan is a simple web interface on an ESP32 to send Wake on Lan Magic Packets.  
+The MAC address of the device to wake up can be selected from a list of specified devices, or manually entered.  
+The default list of devices to wake up is an external file that is compiled into the project.  
+Manually entered MAC addresses are added to the dropdown, however they are lost when the ESP restarts.  
+It is also possible to specify the target broadcast IP address to send the packet to.  
+This is done by selecting one from a dropdown which contains a default option specified in the source code,  
+the last selected IP(if that is a different one), and 255.255.255.255, or manually specifying one.  
+To manually specify a MAC or IP address simply select the "Other" option and enter it into the text input that appears.  
 This is how the web interface looks:  
 ![ESP Wake on Lan Web Interface](https://raw.githubusercontent.com/ToMe25/ESP-WakeOnLan/master/images/web-interface.png)
 
