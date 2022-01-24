@@ -1,21 +1,48 @@
+/* This is the start of the common css for most of my esp projects */
 body {
-	background-color: #acbec6;
+	background-color: #c2cbd1;
 	text-align: center;
 }
 
 .main {
-	border: 4px solid #8c8c8c;
-	border-radius: 10px;
+	--border-color: #808080;
 	background-color: #ededed;
-	padding: 30px;
-	display: inline-block;
-	margin: 4% 0;
+	color: #0d0d0d;
 	font-size: 2em;
+	border: 4px solid var(--border-color);
+	border-radius: 10px;
+	display: inline-block;
+	padding: 30px;
+	margin: 5% 0;
 }
 
 h1 {
-	margin-top: 2%;
+	font-size: 2.2em;
+	margin: 5% 0.3em;
 }
+
+h3, label, p {
+	color: #3F3F48;
+	font-weight: bold;
+	margin: 0.3em 0;
+}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		background-color: #222221;
+	}
+
+	.main {
+		background-color: #131312;
+		color: #aab1b5;
+		--border-color: #484946;
+	}
+
+	h3, label, p {
+		color: #8d9398;
+	}
+}
+/* This is the end of the common css for most of my esp projects */
 
 .message {
 	border-radius: 25px;
@@ -33,40 +60,106 @@ h1 {
 	border: 3px solid #791A10;
 }
 
+button {
+	--bg-color-h: 212;
+	--bg-color-s: 97%;
+	--bg-color-l: 54%;
+	--border-color: hsl(var(--bg-color-h), var(--bg-color-s), calc(var(--bg-color-l) * 2 / 3));
+	background-color: hsl(var(--bg-color-h), var(--bg-color-s), var(--bg-color-l));
+	color: #0f0f0f;
+	font-size: 0.8em;
+	border: 2px solid var(--border-color);
+	border-radius: 6px;
+	box-shadow: -1px -1px 5px var(--border-color), 6px 8px 8px #000000cd;
+	padding: 6px 3em;
+	margin: 5px;
+	margin-top: 12px;
+	transition: all .5s;
+	-webkit-transition: all .5s;
+}
+
+button:focus {
+	outline: none;
+}
+
+button:hover {
+	background-color: hsl(var(--bg-color-h), var(--bg-color-s), calc(var(--bg-color-l) * 16 / 15));
+	border-color: hsl(var(--bg-color-h), var(--bg-color-s), calc(var(--bg-color-l) * 11 / 15));
+	box-shadow: -1px -1px 5px var(--border-color), 3px 5px 6px #000000cd;
+}
+
+button:active {
+	background-color: hsl(var(--bg-color-h), var(--bg-color-s), calc(var(--bg-color-l) * 17 / 15));
+	border-color: hsl(var(--bg-color-h), var(--bg-color-s), calc(var(--bg-color-l) * 11 / 15));
+	box-shadow: none;
+}
+
 .wakeup {
+	--color-h: 0;
+	--color-s: 0%;
+	--color-l: 99%;
 	width: 7ch;
 	height: 7ch;
-	background-color: #258AFC;
-	color: #fcfcfc;
-	border: 3px solid #225AFC;
+	color: hsl(var(--color-h), var(--color-s), var(--color-l));
 	border-radius: 50%;
-	box-shadow: 3px 3px 6px 2px #225AFC;
 	font-size: 2em;
 	vertical-align: middle;
+	padding: 5px;
 	margin-top: 0.5em;
-	transition: all 0.5s;
-	-webkit-transition: all 0.5s;
 }
 
 .wakeup:hover {
-	background-color: #237DE2;
-	color: #f6f6f6;
-	border-color: #2052E2;
-	box-shadow: 2px 2px 4px 2px #225AFC;
+	--color-l: 95%;
 }
 
 .wakeup:active {
-	background-color: #2171CD;
-	color: #efefef;
-	border-color: #184ACD;
-	box-shadow: none;
+	--color-l: 90%;
 }
 
 .input {
 	background-color: white;
+	color: black;
 	border: 2px solid black;
 	border-radius: 0;
 	margin: 6px;
 	padding: 5px 30px;
 	font-size: 1.2em;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+	color: #8d9398;
+}
+
+@media (prefers-color-scheme: dark) {
+	.message {
+		color: #2d2e2f;
+	}
+
+	.wakeup {
+		--color-l: 15%;
+	}
+
+	.wakeup:hover {
+		--color-l: 17%;
+	}
+
+	.wakeup:active {
+		--color-l: 20%;
+	}
+
+	.input {
+		background-color: black;
+		color: white;
+		border-color: white;
+	}
+
+	a:link,
+	a:visited,
+	a:hover,
+	a:active {
+		color: #525550;
+	}
 }
