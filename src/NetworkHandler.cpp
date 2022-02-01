@@ -13,12 +13,14 @@
 #include <regex>
 #include <sstream>
 #include <ArduinoOTA.h>
+#ifdef ESP32
 #include <ESPmDNS.h>
+#elif defined(ESP8266)
+#include <ESP8266mDNS.h>
+#endif
 
-IPAddress NetworkHandler::localhost = IPADDR_NONE;
-IPv6Address NetworkHandler::localhost_ipv6;
+IPAddress NetworkHandler::localhost = IPADDR_ANY;
 AsyncWebServer NetworkHandler::webServer(WEBSERVER_PORT);
-std::string NetworkHandler::indexHtml = INDEX_HTML;
 std::vector<std::string> NetworkHandler::deviceMacs;
 IPAddress NetworkHandler::targetBroadcast = DEFAULT_TARGET_BROADCAST;
 AsyncUDP NetworkHandler::udp;
@@ -39,6 +41,10 @@ void NetworkHandler::setupWiFi() {
 		return;
 	}
 
+#ifdef ESP8266
+	WiFi.setHostname(HOSTNAME);
+#endif
+
 	WiFi.begin(WIFI_SSID, WIFI_PASS);
 }
 
@@ -46,6 +52,7 @@ void NetworkHandler::loop() {
 	ArduinoOTA.handle();
 }
 
+#ifdef ESP32
 void NetworkHandler::onWiFiEvent(WiFiEvent_t event) {
 	switch (event) {
 	case SYSTEM_EVENT_STA_START:
@@ -57,7 +64,7 @@ void NetworkHandler::onWiFiEvent(WiFiEvent_t event) {
 		break;
 	case SYSTEM_EVENT_GOT_IP6:
 		Serial.print("STA IPv6: ");
-		Serial.println(localhost_ipv6 = WiFi.localIPv6());
+		Serial.println(WiFi.localIPv6());
 		break;
 	case SYSTEM_EVENT_STA_GOT_IP:
 		Serial.print("STA IP: ");
@@ -74,6 +81,28 @@ void NetworkHandler::onWiFiEvent(WiFiEvent_t event) {
 		break;
 	}
 }
+#elif defined(ESP8266)
+void NetworkHandler::onWiFiEvent(WiFiEvent_t event) {
+	switch (event) {
+	case WIFI_EVENT_STAMODE_CONNECTED:
+		Serial.println("WiFi connected.");
+		break;
+	case WIFI_EVENT_STAMODE_GOT_IP:
+		Serial.print("STA IP: ");
+		Serial.println(localhost = WiFi.localIP());
+
+		if (DEFAULT_TARGET_BROADCAST == IPAddress((uint32_t) 0)) {
+			targetBroadcast = WiFi.broadcastIP();
+		}
+		break;
+	case WIFI_EVENT_STAMODE_DISCONNECTED:
+		WiFi.reconnect();
+		break;
+	default:
+		break;
+	}
+}
+#endif
 
 void NetworkHandler::setupWebServer() {
 	std::string deviceMacs = DEVICE_MACS;
@@ -217,7 +246,7 @@ void NetworkHandler::onIndexPost(AsyncWebServerRequest *request) {
 }
 
 std::string NetworkHandler::prepareIndexResponse(const String device, const String target) {
-	std::string response = indexHtml;
+	std::string response = INDEX_HTML;
 
 	std::string devices = "\n";
 	for (std::string device : deviceMacs) {
@@ -233,7 +262,12 @@ std::string NetworkHandler::prepareIndexResponse(const String device, const Stri
 	std::vector<std::string> targetIPs;
 	targetIPs.reserve(4);
 	if (target.length() > 6) {
-		targetIPs.push_back(std::string(target.c_str()));
+#ifdef ESP8266
+		if (target == "255.255.255.255") {
+			targetIPs.push_back("(IP unset)");
+		} else
+#endif
+			targetIPs.push_back(std::string(target.c_str()));
 	}
 	std::string ip(targetBroadcast.toString().c_str());
 	if (std::count(targetIPs.begin(), targetIPs.end(), ip) == 0) {
@@ -259,6 +293,12 @@ std::string NetworkHandler::prepareIndexResponse(const String device, const Stri
 
 	std::string targets = "\n";
 	for (std::string target : targetIPs) {
+#ifdef ESP8266
+		if (target == "(IP unset)") {
+			target = "255.255.255.255";
+		}
+#endif
+
 		targets += "<option value=\"";
 		targets += target;
 		targets += "\">";

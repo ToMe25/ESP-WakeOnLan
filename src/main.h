@@ -11,8 +11,10 @@
 #ifndef SRC_MAIN_H_
 #define SRC_MAIN_H_
 
+#ifdef ESP32
 void setup();
 void loop();
+#endif
 
 class main {
 public:

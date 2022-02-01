@@ -12,8 +12,13 @@
 #define LIB_WAKEONLANGENERATOR_H_
 
 #include <regex>
+#ifdef ESP32
 #include <WiFi.h>
 #include <AsyncUDP.h>
+#elif defined(ESP8266)
+#include <ESP8266WiFi.h>
+#include <ESPAsyncUDP.h>
+#endif
 
 static const std::regex MAC_REGEX(
 		"[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}:[a-fA-F0-9]{2}");

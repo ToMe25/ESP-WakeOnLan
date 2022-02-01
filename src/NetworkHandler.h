@@ -13,7 +13,11 @@
 
 #include <string>
 #include <ESPAsyncWebServer.h>
+#ifdef ESP32
 #include <AsyncUDP.h>
+#elif defined(ESP8266)
+#include <ESPAsyncUDP.h>
+#endif
 
 // Includes the content of the file "wifissid.txt" in the project root.
 // Make sure this file doesn't end with an empty line.
@@ -36,8 +40,8 @@ extern const char NOT_FOUND_HTML[] asm("_binary_src_html_not_found_html_start");
 
 // WiFi constants
 static const char HOSTNAME[] = "esp-wol";
-static const IPAddress GATEWAY(192, 168, 2, 1);
-static const IPAddress SUBNET = IPADDR_NONE;
+static const IPAddress GATEWAY = IPADDR_ANY;
+static const IPAddress SUBNET = IPADDR_ANY;
 
 // Web Server constants
 static const uint16_t WEBSERVER_PORT = 80;
@@ -57,11 +61,9 @@ private:
 
 	// WiFi variables
 	static IPAddress localhost;
-	static IPv6Address localhost_ipv6;
 
 	// Web Server variables
 	static AsyncWebServer webServer;
-	static std::string indexHtml;
 	static std::vector<std::string> deviceMacs;
 	static IPAddress targetBroadcast;
 

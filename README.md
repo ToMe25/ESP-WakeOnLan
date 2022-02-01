@@ -1,5 +1,6 @@
 # ESP Wake on Lan
-ESP Wake on Lan is a simple web interface on an ESP32 to send Wake on Lan Magic Packets.  
+ESP Wake on Lan is a simple web interface on an ESP32/ESP8266 to send Wake on Lan Magic Packets.
+
 The MAC address of the device to wake up can be selected from a list of specified devices, or manually entered.  
 The default list of devices to wake up is an external file that is compiled into the project.  
 Manually entered MAC addresses are added to the dropdown, however they are lost when the ESP restarts.  
@@ -12,7 +13,7 @@ This is how the web interface looks:
 
 ## Requirements
  1. A system with a working [platform io](https://platformio.org/) installation.
- 2. A ESP32 board, tested only with the ESP32-devkitc, but should work with others.
+ 2. A ESP32 or ESP8266 board, tested only with the ESP32-DevKitC and ESP8266-DevKitC but should work with others.
 
 ## Installation
  * Create a file called `wifissid.txt` in the root folder of this project, containing your wifi ssid.
@@ -24,5 +25,5 @@ This is how the web interface looks:
  * An example can be seen in `devices.example`.
  * Empty lines in this file are ignored.
  * Attach your ESP to your PC.
- * Run `pio run -t upload -e esp32dev` to compile this project and flash it to your ESP.
- * To later update it over WiFi run `pio ron -t upload -e ota`.
+ * Run `pio run -t upload -e esp32dev` to compile this project and flash it to your ESP32 or `pio run -t upload -e esp_wroom_02` for ESP8266.
+ * To later update it over WiFi run `pio ron -t upload -e esp32dev_ota` for ESP32 or `pio run -t upload -e esp_wroom_02_ota` for ESP8266.
