@@ -1,45 +1,97 @@
 /* This is the start of the common css for most of my esp projects */
-body {
-	background-color: #c2cbd1;
+:root {
+	--bg-color: #c6cbd4;
+	--main-bg-color: #eaeaea;
+	--border-color: #6a6a6a;
+	--text-color: #393939;
+	--link-color: #767e84;
+	--active-link-color: #666c7b;
+
+	background-color: var(--bg-color);
+	color: var(--text-color);
+	color-scheme: light dark;
 	text-align: center;
 }
 
+body {
+	display: inline-block;
+	min-width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
+main,
 .main {
-	--border-color: #808080;
-	background-color: #ededed;
-	color: #0d0d0d;
-	font-size: 2em;
+	background-color: var(--main-bg-color);
+	font-size: 2rem;
 	border: 4px solid var(--border-color);
 	border-radius: 10px;
 	display: inline-block;
-	padding: 30px;
 	margin: 5% 0;
+	padding: 30px;
+}
+
+code {
+	background-color: #b9b9b9;
+	padding: 2px 5px;
+	border-radius: 4px;
+	font-size: 0.9em;
 }
 
 h1 {
-	font-size: 2.2em;
-	margin: 5% 0.3em;
+	color: #202020;
+	font-size: 4rem;
+	margin: 5% 1.2rem;
 }
 
 h3, label, p {
-	color: #3F3F48;
 	font-weight: bold;
-	margin: 0.3em 0;
+	margin: 0.8rem 0;
+	font-size: 2.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-	body {
-		background-color: #222221;
+a:link,
+a:visited {
+	color: var(--link-color);
+}
+
+a:hover,
+a:active {
+	color: var(--active-link-color);
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+	:root {
+		--bg-color: #0f0e0c;
+		--main-bg-color: #1f1e1c;
+		--border-color: #626259;
+		--text-color: #80807e;
+		--link-color: #656562;
+		--active-link-color: #525250;
 	}
 
+	h1 {
+		color: #a5a5a0;
+	}
+
+	code {
+		background-color: #121211;
+	}
+}
+
+@media only screen and (max-width: calc(30rem + 68px)) {
+	main,
 	.main {
-		background-color: #131312;
-		color: #aab1b5;
-		--border-color: #484946;
+		padding: 4vh 5vw;
 	}
 
-	h3, label, p {
-		color: #8d9398;
+	h1 {
+		font-size: 12vw;
+	}
+
+	h3 {
+		font-size: 7.5vw;
+		margin: 1vh;
 	}
 }
 /* This is the end of the common css for most of my esp projects */
