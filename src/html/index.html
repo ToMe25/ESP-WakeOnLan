@@ -23,7 +23,7 @@
 			title="The MAC address of the device to wake up."
 			alt="The MAC address of the device to wake up."
 			placeholder="Device MAC Address" minlength="17" maxlength="17"
-			size="12" hidden="true" /> <br /> <label for="target">Target:
+			size="13" hidden="true" /> <br /> <label for="target">Target:
 		</label> <select class="input" name="target" id="target"
 			title="The broadcast IP address to send the wake on lan packet to."
 			required>$targets
@@ -33,8 +33,8 @@
 			id="custom_target"
 			title="The broadcast IP address to send the wake on lan packet to."
 			alt="The broadcast IP address to send the wake on lan packet to."
-			placeholder="Target Broadcast IP" size="12" maxlength="15"
-			hidden="true" /> <br />
+			placeholder="Target Broadcast IP" minlength="7" maxlength="15"
+			size="12" hidden="true" /> <br />
 		<button class="wakeup" type="submit">Wake Up</button>
 	</form>
 </body>
