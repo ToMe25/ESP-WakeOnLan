@@ -9,7 +9,10 @@ This is done by selecting one from a dropdown which contains a default option sp
 the last selected IP(if that is a different one), and 255.255.255.255, or manually specifying one.  
 To manually specify a MAC or IP address simply select the "Other" option and enter it into the text input that appears.  
 This is how the web interface looks:  
-![ESP Wake on Lan Web Interface](https://raw.githubusercontent.com/ToMe25/ESP-WakeOnLan/master/images/web_interface.png)
+![ESP Wake on Lan Web Interface](./images/web_interface.png)
+
+This web interface also has dark mode support:  
+![ESP Wake on Lan Web Interface Dark Mode](./images/web_interface_dark.png)
 
 ## Requirements
  1. A system with a working [platform io](https://platformio.org/) installation.
